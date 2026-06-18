@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神奇的加法交换律</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f0f9ff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #0284c7;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .rule-box {
+            background-color: #e0f2fe;
+            border: 2px dashed #0284c7;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #0369a1;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .control-panel {
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .control-panel input {
+            width: 60px;
+            font-size: 1.2rem;
+            padding: 5px;
+            text-align: center;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            margin: 0 10px;
+        }
+
+        .btn-swap {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+            transition: all 0.2s;
+        }
+
+        .btn-swap:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-swap:active {
+            transform: translateY(0);
+        }
+
+        .demo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            min-width: 600px;
+        }
+
+        /* 算式样式 */
+        .equation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            height: 80px;
+        }
+
+        .num-a { color: #ef4444; transition: all 0.5s ease; }
+        .num-b { color: #10b981; transition: all 0.5s ease; }
+        .symbol { color: #64748b; margin: 0 15px; }
+        .sum { color: #8b5cf6; }
+
+        /* 方块视觉展示 */
+        .visual-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+            width: 100%;
+        }
+
+        .block-group {
+            display: flex;
+            gap: 5px;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.5s ease;
+        }
+
+        .block {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            box-shadow: inset 0 -4px 0 rgba(0,0,0,0.15);
+            animation: popIn 0.3s ease-out;
+        }
+
+        .block-a { background-color: #fca5a5; border: 2px solid #ef4444; }
+        .block-b { background-color: #6ee7b7; border: 2px solid #10b981; }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1> 加法交换律</h1>
+    <div class="rule-box">
+        💡 两数相加，交换加数的位置，和不变！
+    </div>
+
+    <div class="control-panel">
+        <label>红方块数量 (1-10):</label>
+        <input type="number" id="inputA" value="3" min="1" max="10">
+        <label>绿方块数量 (1-10):</label>
+        <input type="number" id="inputB" value="5" min="1" max="10">
+    </div>
+
+    <div class="demo-container">
+        <div class="equation" id="equationRow">
+            </div>
+
+        <div class="visual-container" id="visualRow">
+            </div>
+
+        <button class="btn-swap" onclick="swapNumbers()" style="margin-top: 40px;">✨ 交换位置 ✨</button>
+    </div>
+
+    <script>
+        // 初始状态
+        let numA = 3;
+        let numB = 5;
+        let isSwapped = false;
+
+        const inputA = document.getElementById('inputA');
+        const inputB = document.getElementById('inputB');
+
+        // 监听输入框变化
+        inputA.addEventListener('input', updateValues);
+        inputB.addEventListener('input', updateValues);
+
+        function updateValues() {
+            // 限制范围在 1-10 之间，避免屏幕塞不下
+            let valA = Math.max(1, Math.min(10, parseInt(inputA.value) || 1));
+            let valB = Math.max(1, Math.min(10, parseInt(inputB.value) || 1));
+            
+            inputA.value = valA;
+            inputB.value = valB;
+
+            if(!isSwapped) {
+                numA = valA;
+                numB = valB;
+            } else {
+                numA = valB;
+                numB = valA;
+            }
+            render();
+        }
+
+        // 核心交换函数
+        function swapNumbers() {
+            isSwapped = !isSwapped;
+            // 交换数值
+            let temp = numA;
+            numA = numB;
+            numB = temp;
+            render();
+        }
+
+        // 渲染页面内容
+        function render() {
+            const equationRow = document.getElementById('equationRow');
+            const visualRow = document.getElementById('visualRow');
+            const total = numA + numB;
+
+            // 判断当前的颜色归属（为了让数字和方块颜色始终保持绑定）
+            // 如果初始是 3(红)+5(绿)，交换后是 5(绿)+3(红)
+            const currentAIsRed = (!isSwapped && numA === parseInt(inputA.value)) || (isSwapped && numA === parseInt(inputB.value));
+            
+            const classA = currentAIsRed ? 'num-a' : 'num-b';
+            const classB = currentAIsRed ? 'num-b' : 'num-a';
+            const blockClassA = currentAIsRed ? 'block-a' : 'block-b';
+            const blockClassB = currentAIsRed ? 'block-b' : 'block-a';
+
+            // 1. 渲染算式
+            equationRow.innerHTML = `
+                <span class="${classA}">${numA}</span>
+                <span class="symbol">+</span>
+                <span class="${classB}">${numB}</span>
+                <span class="symbol">=</span>
+                <span class="sum">${total}</span>
+            `;
+
+            // 2. 渲染视觉方块
+            visualRow.innerHTML = '';
+
+            // 创建第一组方块
+            const groupA = document.createElement('div');
+            groupA.className = 'block-group';
+            for(let i=0; i<numA; i++) {
+                const block = document.createElement('div');
+                block.className = `block ${blockClassA}`;
+                groupA.appendChild(block);
+            }
+
+            // 创建加号文本
+            const plusSign = document.createElement('div');
+            plusSign.className = 'symbol';
+            plusSign.style.fontSize = '2rem';
+            plusSign.innerText = '+';
+
+            // 创建第二组方块
+            const groupB = document.createElement('div');
+            groupB.className = 'block-group';
+            for(let i=0; i<numB; i++) {
+                const block = document.createElement('div');
+                block.className = `block ${blockClassB}`;
+                groupB.appendChild(block);
+            }
+
+            // 按顺序组合
+            visualRow.appendChild(groupA);
+            visualRow.appendChild(plusSign);
+            visualRow.appendChild(groupB);
+        }
+
+        // 首次打开页面初始化
+        render();
+    </script>
+</body>
+</html>
